@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?qbxml version="15.0"?>
+<QBXML>
+<QBXMLMsgsRq onError="stopOnError">
+
+<VendorAddRq>
+ 	<VendorAdd> <!-- required -->
+		
+		<Name>{{VendorAddName}}</Name> <!-- required -->
+		<IsActive>{{IsActive}}</IsActive>
+		<CompanyName>{{CompanyName}}</CompanyName>
+		                   
+        <VendorAddress>                                      
+          <Addr1>{{Addr1}}</Addr1>                         
+          <Addr2>{{Addr2}}</Addr2>    
+          <Addr3>{{Addr3}}</Addr3>                      
+          <City>{{City}}</City>                   
+          <State>{{State}}</State>                            
+          <PostalCode>{{PostalCode}}</PostalCode>               
+        </VendorAddress>
+    <Phone >{{Phone}}</Phone> <!-- optional -->
+		<Email>{{Email}}</Email>
+		<Notes >{{Notes}} </Notes> <!-- optional -->
+		<VendorTaxIdent >{{VendorTaxIdent}}</VendorTaxIdent> <!-- optional -->
+		<NameOnCheck >{{NameOnCheck}}</NameOnCheck> <!-- optional -->
+    
+    
+
+  </VendorAdd>  
+</VendorAddRq>
+ 			
+</QBXMLMsgsRq>
+</QBXML>

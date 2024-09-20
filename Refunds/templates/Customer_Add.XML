@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?qbxml version="15.0"?>
+<QBXML>
+        <QBXMLMsgsRq onError="stopOnError">
+                <CustomerAddRq>
+                        <CustomerAdd> <!-- required -->
+                                <Name >{{Customer_Id}}</Name> <!-- required -->
+                                <IsActive >{{Is_Active}}</IsActive> <!-- optional -->
+                                <CompanyName >{{CompanyName}}</CompanyName> <!-- optional -->
+                                <BillAddress> <!-- optional -->
+                                        <Addr1 >{{Addr1}}</Addr1> <!-- optional -->
+                                        <Addr2 >{{Addr2}}</Addr2> <!-- optional -->
+                                        <Addr3 >{{Addr3}}</Addr3> <!-- optional -->
+                                        <City >{{City}}</City> <!-- optional -->
+                                        <State >{{State}}</State> <!-- optional -->
+                                        <PostalCode >{{PostalCode}}</PostalCode> <!-- optional -->
+                                 </BillAddress>
+                                <Phone >{{Phone}}</Phone> <!-- optional -->
+                                <Email >{{Email}}</Email> <!-- optional -->
+                        </CustomerAdd>        
+                </CustomerAddRq>
+        </QBXMLMsgsRq>
+</QBXML>

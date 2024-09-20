@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?qbxml version="15.0"?>
+<QBXML>
+        <QBXMLMsgsRq onError="stopOnError">
+                <InvoiceAddRq>
+                        <InvoiceAdd> <!-- required -->
+                                <CustomerRef> <!-- required -->
+                                        <FullName >{{FullName}}</FullName> <!-- optional -->
+                                </CustomerRef>
+                                <ARAccountRef> <!-- optional -->
+                                        <FullName >13000</FullName> <!-- optional -->
+                                </ARAccountRef>
+                                <TxnDate >{{TxnDate}}</TxnDate> <!-- optional -->
+                                        <InvoiceLineAdd>
+                                        <ItemRef> <!-- optional -->
+                                                <FullName >1000</FullName> <!-- optional -->
+                                        </ItemRef>
+                                        <Desc >Chargebacks</Desc> <!-- optional -->
+                                        <Amount >{{Payment_Amount}}</Amount> <!-- optional -->
+                                        </InvoiceLineAdd>
+                        </InvoiceAdd>
+                </InvoiceAddRq>
+        </QBXMLMsgsRq>
+</QBXML>

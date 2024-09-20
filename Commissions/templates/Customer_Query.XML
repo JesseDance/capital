@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?qbxml version="15.0"?>
+<QBXML>
+        <QBXMLMsgsRq onError="stopOnError">
+                <CustomerQueryRq metaData="MetaDataAndResponseData">
+                        <FullName >{{Customer_Name}}</FullName> <!-- optional, may repeat -->
+                </CustomerQueryRq>
+        </QBXMLMsgsRq>
+</QBXML>

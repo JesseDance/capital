@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?qbxml version="15.0"?>
+<QBXML>
+	<QBXMLMsgsRq onError="stopOnError">
+		<CheckAddRq>
+			<CheckAdd >
+				<!-- required -->
+				<AccountRef>
+					<!-- required -->
+					<FullName >11000</FullName>
+					<!-- optional -->
+				</AccountRef>
+				<PayeeEntityRef>
+					<!-- optional -->
+					<FullName >{{FullName}}</FullName>
+					<!-- optional -->
+				</PayeeEntityRef>
+				<RefNumber ></RefNumber>
+				<!-- optional -->
+				<TxnDate >{{TxnDate}}</TxnDate>
+				<IsToBePrinted >1</IsToBePrinted> <!-- optional -->
+
+
+
+{% for cancellation in Cancellation_List %}
+				<ExpenseLineAdd >
+					<!-- optional, may repeat -->
+					<AccountRef>
+						<!-- optional -->
+						<FullName >{{cancellation.accountref}}</FullName>
+						<!-- optional -->
+					</AccountRef>
+					<Amount >{{cancellation.Payment_Amount}}</Amount>
+					<!-- optional -->
+					<Memo >{{cancellation.check_memo}}</Memo>
+					<!-- optional -->
+
+
+				</ExpenseLineAdd>
+{% endfor %}
+
+
+			</CheckAdd>
+		</CheckAddRq>
+	</QBXMLMsgsRq>
+</QBXML>

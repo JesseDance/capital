@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?qbxml version="15.0"?>
+<QBXML>
+	<QBXMLMsgsRq onError="stopOnError">
+		<CheckAddRq>
+			<CheckAdd >
+				<!-- required -->
+				<AccountRef>
+					<!-- required -->
+					<FullName >11000</FullName>
+					<!-- optional -->
+				</AccountRef>
+				<PayeeEntityRef>
+					<!-- optional -->
+					<FullName >{{FullName}}</FullName>
+					<!-- optional -->
+				</PayeeEntityRef>
+				<RefNumber ></RefNumber>
+				<!-- optional -->
+				<TxnDate >{{TxnDate}}</TxnDate>
+				<IsToBePrinted >1</IsToBePrinted> <!-- optional -->
+
+
+
+{% for claim in Claim_List %}
+				<ExpenseLineAdd >
+					<!-- optional, may repeat -->
+					<AccountRef>
+						<!-- optional -->
+						<FullName >{{claim.accountref}}</FullName>
+						<!-- optional -->
+					</AccountRef>
+					<Amount >{{claim.Payment_Amount}}</Amount>
+					<!-- optional -->
+					<Memo >{{claim.check_memo}}</Memo>
+					<!-- optional -->
+
+
+				</ExpenseLineAdd>
+{% endfor %}
+
+
+			</CheckAdd>
+		</CheckAddRq>
+	</QBXMLMsgsRq>
+</QBXML>

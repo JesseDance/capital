@@ -1,0 +1,179 @@
+from openpyxl import load_workbook
+
+
+
+def create_commission_list_of_dicts(file_name):
+
+	
+	
+
+	workbook = load_workbook(filename=file_name)
+	sheet = workbook['Tab1']
+	count = 0
+	commission_list = []
+
+	for x in sheet:
+		commission_dict = {}
+		count = count + 1
+	
+	# Bypass Row 1 Headers
+	
+		if count > 1:
+			count_alpha = str(count)
+			pos_a = "A" + count_alpha
+			pos_b = "B" + count_alpha
+			pos_c = "C" + count_alpha
+			pos_d = "D" + count_alpha
+			pos_e = "E" + count_alpha
+			pos_f = "F" + count_alpha
+			pos_g = "G" + count_alpha
+			pos_h = "H" + count_alpha
+			pos_i = "I" + count_alpha
+			pos_j = "J" + count_alpha
+			pos_k = "K" + count_alpha
+			pos_l = "L" + count_alpha
+			pos_m = "M" + count_alpha
+			pos_p = "P" + count_alpha
+			pos_r = "R" + count_alpha
+			pos_s = "S" + count_alpha
+			pos_t = "T" + count_alpha
+			pos_u = "U" + count_alpha
+			pos_v = "V" + count_alpha
+			pos_w = "W" + count_alpha
+			pos_x = "X" + count_alpha
+			pos_y = "Y" + count_alpha
+			pos_z = "Z" + count_alpha
+			
+			spayee_number = sheet[pos_a]
+			spayee_number_value = (spayee_number.value)
+			
+			spayee_name = sheet[pos_b]
+			spayee_name_value = (spayee_name.value)
+			
+			sdealer_number = sheet[pos_c]
+			sdealer_number_value = (sdealer_number.value)
+			
+			sdealer_name = sheet[pos_d]
+			sdealer_name_value = (sdealer_name.value)
+			
+			scontract_type_desc = sheet[pos_e]
+			scontract_type_desc_value = (scontract_type_desc.value)
+			
+			cpayee_amount_new_business = sheet[pos_f]
+			cpayee_amount_new_business_value = (cpayee_amount_new_business.value)
+			
+			icount_new_business = sheet[pos_g]
+			icount_new_business_value = (icount_new_business.value)
+			
+			cadjustment_amount = sheet[pos_h]
+			cadjustment_amount_value = (cadjustment_amount.value)
+			
+			iadjustment_count = sheet[pos_i]
+			iadjustment_count_value = (iadjustment_count.value)
+			
+			cpayee_amount_cancel = sheet[pos_j]
+			cpayee_amount_cancel_value = (cpayee_amount_cancel.value)
+			
+			icount_cancel = sheet[pos_k]
+			icount_cancel_value = (icount_cancel.value)
+			
+			Textbox5 = sheet[pos_l]
+			Textbox5_value = (Textbox5.value)
+			
+			Textbox60 = sheet[pos_m]
+			Textbox60_value = (Textbox60.value)
+			
+			Textbox61 = sheet[pos_n]
+			Textbox61_value = (Textbox61.value)
+			
+			Textbox62 = sheet[pos_o]
+			Textbox62_value = (Textbox62.value)
+			
+			Textbox63 = sheet[pos_p]
+			Textbox63_value = (Textbox63.value)
+			
+			Textbox64 = sheet[pos_q]
+			Textbox64_value = (Textbox64.value)
+			
+			Textbox64 = sheet[pos_r]
+			Textbox64_value = (Textbox64.value)
+			
+			Textbox65 = sheet[pos_s]
+			Textbox65_value = (Textbox65.value)
+			
+			Textbox66 = sheet[pos_t]
+			Textbox66_value = (Textbox66.value)
+			
+			Textbox68 = sheet[pos_u]
+			Textbox68 = (Textbox68.value)
+			
+			Textbox69 = sheet[pos_v]
+			Textbox69_value = (Textbox69.value)
+			
+			Textbox70 = sheet[pos_w]
+			Textbox70_value = (Textbox70.value)
+			
+			Textbox71 = sheet[pos_x]
+			Textbox71_value = (Textbox71.value)
+			
+			Textbox72 = sheet[pos_y]
+			Textbox72_value = (Textbox72.value)
+			
+			Textbox73 = sheet[pos_z]
+			Textbox73_value = (Textbox73.value)
+			
+				
+			commission_dict["spayee_number"] = spayee_number_value
+			commission_dict["spayee_name"] = spayee_name_value
+			commission_dict["sdealer_number"] = sdealer_number_value
+			commission_dict["sdealer_name"] = sdealer_name_value
+			commission_dict["scontract_type_desc"] = scontract_type_desc_value
+			commission_dict["cpayee_amount_new_business"] = cpayee_amount_new_business_value
+			commission_dict["icount_new_business"] = icount_new_business_value
+			commission_dict["cadjustment_amount"] = cadjustment_amount_value
+			commission_dict["iadjustment_count"] = iadjustment_count_value
+			commission_dict["cpayee_amount_cancel"] = cpayee_amount_cancel_value
+			commission_dict["icount_cancel"] = icount_cancel_value
+			commission_dict["Textbox5"] = Textbox5_value
+			commission_dict["Textbox60"] = Textbox60_value
+			commission_dict["Textbox61"] = Textbox61_value
+			commission_dict["Textbox62"] = Textbox62_value
+			commission_dict["Textbox63"] = Textbox63_value
+			commission_dict["Textbox64"] = Textbox64_value
+			commission_dict["Textbox65"] = Textbox65_value
+			commission_dict["Textbox66"] = Textbox66_value
+			commission_dict["Textbox67"] = Textbox67_value
+			commission_dict["Textbox68"] = Textbox68_value
+			commission_dict["Textbox69"] = Textbox69_value
+			commission_dict["Textbox70"] = Textbox70_value
+			commission_dict["Textbox71"] = Textbox71_value
+			commission_dict["Textbox72"] = Textbox72_value
+			commission_dict["Textbox73"] = Textbox73_value
+			
+	
+			#json_string = json.dumps(commission_dict)
+			#payee_list.append(json_string)
+			commission_list.append(commission_dict)
+			
+			
+			sorted_commission_list = sorted(commission_list, key=lambda x: (x['spayee_number'], 
+                                          x['scontract_type_desc']))
+			
+			
+	print("Sort Commission List")
+	print(sorted_commission_list)
+	
+	return sorted_commission_list 	
+
+
+
+if __name__ == "__main__":
+
+	file_name = "/home/bwdrkr2/Data/Consulting/Capital/Commissions/Commission_File/SCSRPT057 Commission Summary.csv"
+	sorted_commission_list = create_commission_list_of_dicts(file_name)
+	print(sorted_commission_list)
+	print()
+        
+	
+	
+

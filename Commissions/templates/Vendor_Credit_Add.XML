@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?qbxml version="15.0"?>
+<QBXML>
+        <QBXMLMsgsRq onError="stopOnError">
+                <VendorCreditAddRq>
+                        <VendorCreditAdd defMacro="MACROTYPE"> <!-- required -->
+                                <VendorRef> <!-- required -->
+                                        <FullName >{{FullName}}</FullName> <!-- optional -->
+                                </VendorRef>
+                                <APAccountRef> <!-- optional -->
+                                        <FullName >20000</FullName> <!-- optional -->
+                                </APAccountRef>
+                                <TxnDate >{{TxnDate}}</TxnDate> <!-- optional -->
+                                <RefNumber >{{RefNumber}}</RefNumber> <!-- optional -->
+                                <Memo >*** Test Memo ***</Memo> <!-- optional -->
+                                <ExpenseLineAdd>
+                                        <AccountRef> <!-- optional -->
+                                                <FullName >51000</FullName> <!-- optional -->
+                                        </AccountRef>
+                                        <Amount >{{Payment_Amount}}</Amount> <!-- optional -->
+                                </ExpenseLineAdd>
+                        </VendorCreditAdd>             
+                </VendorCreditAddRq>
+        </QBXMLMsgsRq>
+</QBXML>

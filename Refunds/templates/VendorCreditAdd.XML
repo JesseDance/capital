@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?qbxml version="15.0"?>
+<QBXML>
+        <QBXMLMsgsRq onError="stopOnError">
+                <VendorCreditAddRq>
+                        <VendorCreditAdd defMacro="MACROTYPE"> <!-- required -->
+                                <VendorRef> <!-- required -->
+                                        <ListID >IDTYPE</ListID> <!-- optional -->
+                                        <FullName >STRTYPE</FullName> <!-- optional -->
+                                </VendorRef>
+                                <APAccountRef> <!-- optional -->
+                                        <ListID >IDTYPE</ListID> <!-- optional -->
+                                        <FullName >STRTYPE</FullName> <!-- optional -->
+                                </APAccountRef>
+                                <TxnDate >DATETYPE</TxnDate> <!-- optional -->
+                                <RefNumber >STRTYPE</RefNumber> <!-- optional -->
+                                <Memo >STRTYPE</Memo> <!-- optional -->
+                                <IsTaxIncluded >BOOLTYPE</IsTaxIncluded> <!-- optional -->
+                                <SalesTaxCodeRef> <!-- optional -->
+                                        <ListID >IDTYPE</ListID> <!-- optional -->
+                                        <FullName >STRTYPE</FullName> <!-- optional -->
+                                </SalesTaxCodeRef>
+                                <ExchangeRate >FLOATTYPE</ExchangeRate> <!-- optional -->
+                                <ExternalGUID >GUIDTYPE</ExternalGUID> <!-- optional -->
+                                <ExpenseLineAdd defMacro="MACROTYPE"> <!-- optional, may repeat -->
+                                        <AccountRef> <!-- optional -->
+                                                <ListID >IDTYPE</ListID> <!-- optional -->
+                                                <FullName >STRTYPE</FullName> <!-- optional -->
+                                        </AccountRef>
+                                        <Amount >AMTTYPE</Amount> <!-- optional -->
+                                        <Memo >STRTYPE</Memo> <!-- optional -->
+                                        <CustomerRef> <!-- optional -->
+                                                <ListID >IDTYPE</ListID> <!-- optional -->
+                                                <FullName >STRTYPE</FullName> <!-- optional -->
+                                        </CustomerRef>
+                                        <ClassRef> <!-- optional -->
+                                                <ListID >IDTYPE</ListID> <!-- optional -->
+                                                <FullName >STRTYPE</FullName> <!-- optional -->
+                                        </ClassRef>
+                                        <SalesTaxCodeRef> <!-- optional -->
+                                                <ListID >IDTYPE</ListID> <!-- optional -->
+                                                <FullName >STRTYPE</FullName> <!-- optional -->
+                                        </SalesTaxCodeRef>
+                                        <!-- BillableStatus may have one of the following values: Billable, NotBillable, HasBeenBilled -->
+                                        <BillableStatus >ENUMTYPE</BillableStatus> <!-- optional -->
+                                        <SalesRepRef> <!-- optional -->
+                                                <ListID >IDTYPE</ListID> <!-- optional -->
+                                                <FullName >STRTYPE</FullName> <!-- optional -->
+                                        </SalesRepRef>
+                                        <DataExt> <!-- optional, may repeat -->
+                                                <OwnerID >GUIDTYPE</OwnerID> <!-- required -->
+                                                <DataExtName >STRTYPE</DataExtName> <!-- required -->
+                                                <DataExtValue >STRTYPE</DataExtValue> <!-- required -->
+                                        </DataExt>
+                                </ExpenseLineAdd>
+                                <!-- BEGIN OR -->
+                                        <ItemLineAdd> <!-- optional -->
+                                                <ItemRef> <!-- optional -->
+                                                        <ListID >IDTYPE</ListID> <!-- optional -->
+                                                        <FullName >STRTYPE</FullName> <!-- optional -->
+                                                </ItemRef>
+                                                <InventorySiteRef> <!-- optional -->
+                                                        <ListID >IDTYPE</ListID> <!-- optional -->
+                                                        <FullName >STRTYPE</FullName> <!-- optional -->
+                                                </InventorySiteRef>
+                                                <InventorySiteLocationRef> <!-- optional -->
+                                                        <ListID >IDTYPE</ListID> <!-- optional -->
+                                                        <FullName >STRTYPE</FullName> <!-- optional -->
+                                                </InventorySiteLocationRef>
+                                                <!-- BEGIN OR -->
+                                                        <SerialNumber >STRTYPE</SerialNumber> <!-- optional -->
+                                                <!-- OR -->
+                                                        <LotNumber >STRTYPE</LotNumber> <!-- optional -->
+                                                <!-- END OR -->
+                                                <Desc >STRTYPE</Desc> <!-- optional -->
+                                                <Quantity >QUANTYPE</Quantity> <!-- optional -->
+                                                <UnitOfMeasure >STRTYPE</UnitOfMeasure> <!-- optional -->
+                                                <Cost >PRICETYPE</Cost> <!-- optional -->
+                                                <Amount >AMTTYPE</Amount> <!-- optional -->
+                                                <CustomerRef> <!-- optional -->
+                                                        <ListID >IDTYPE</ListID> <!-- optional -->
+                                                        <FullName >STRTYPE</FullName> <!-- optional -->
+                                                </CustomerRef>
+                                                <ClassRef> <!-- optional -->
+                                                        <ListID >IDTYPE</ListID> <!-- optional -->
+                                                        <FullName >STRTYPE</FullName> <!-- optional -->
+                                                </ClassRef>
+                                                <SalesTaxCodeRef> <!-- optional -->
+                                                        <ListID >IDTYPE</ListID> <!-- optional -->
+                                                        <FullName >STRTYPE</FullName> <!-- optional -->
+                                                </SalesTaxCodeRef>
+                                                <!-- BillableStatus may have one of the following values: Billable, NotBillable, HasBeenBilled -->
+                                                <BillableStatus >ENUMTYPE</BillableStatus> <!-- optional -->
+                                                <OverrideItemAccountRef> <!-- optional -->
+                                                        <ListID >IDTYPE</ListID> <!-- optional -->
+                                                        <FullName >STRTYPE</FullName> <!-- optional -->
+                                                </OverrideItemAccountRef>
+                                                <SalesRepRef> <!-- optional -->
+                                                        <ListID >IDTYPE</ListID> <!-- optional -->
+                                                        <FullName >STRTYPE</FullName> <!-- optional -->
+                                                </SalesRepRef>
+                                                <DataExt> <!-- optional, may repeat -->
+                                                        <OwnerID >GUIDTYPE</OwnerID> <!-- required -->
+                                                        <DataExtName >STRTYPE</DataExtName> <!-- required -->
+                                                        <DataExtValue >STRTYPE</DataExtValue> <!-- required -->
+                                                </DataExt>
+                                        </ItemLineAdd>
+                                <!-- OR -->
+                                        <ItemGroupLineAdd> <!-- optional -->
+                                                <ItemGroupRef> <!-- required -->
+                                                        <ListID >IDTYPE</ListID> <!-- optional -->
+                                                        <FullName >STRTYPE</FullName> <!-- optional -->
+                                                </ItemGroupRef>
+                                                <Quantity >QUANTYPE</Quantity> <!-- optional -->
+                                                <UnitOfMeasure >STRTYPE</UnitOfMeasure> <!-- optional -->
+                                                <InventorySiteRef> <!-- optional -->
+                                                        <ListID >IDTYPE</ListID> <!-- optional -->
+                                                        <FullName >STRTYPE</FullName> <!-- optional -->
+                                                </InventorySiteRef>
+                                                <InventorySiteLocationRef> <!-- optional -->
+                                                        <ListID >IDTYPE</ListID> <!-- optional -->
+                                                        <FullName >STRTYPE</FullName> <!-- optional -->
+                                                </InventorySiteLocationRef>
+                                                <DataExt> <!-- optional, may repeat -->
+                                                        <OwnerID >GUIDTYPE</OwnerID> <!-- required -->
+                                                        <DataExtName >STRTYPE</DataExtName> <!-- required -->
+                                                        <DataExtValue >STRTYPE</DataExtValue> <!-- required -->
+                                                </DataExt>
+                                        </ItemGroupLineAdd>
+                                <!-- END OR -->
+                        </VendorCreditAdd>
+                        <IncludeRetElement >STRTYPE</IncludeRetElement> <!-- optional, may repeat -->
+                </VendorCreditAddRq>
+
+                
+        </QBXMLMsgsRq>
+</QBXML>
