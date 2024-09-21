@@ -246,7 +246,7 @@ def create_list_of_payee_ids(sorted_claim_list):
 if __name__ == "__main__":
 
 	file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/CLAIMS_2024082215202191"
-	additional_file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/Additional_Claims_info_6.12.24.csv"
+	additional_file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/Additional_Claims_info_9.20.24.csv"
 
 	sorted_claim_list_with_memo, list_of_names, list_of_payee_ids = parse_claim_files(file_name, additional_file_name)
 

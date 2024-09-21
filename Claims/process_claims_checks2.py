@@ -1026,6 +1026,6 @@ def write_csv_lines_from_list(line_list):
 if __name__ == "__main__":
 
 	file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/CLAIMS_2024082215202191"
-	additional_file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/Additional_Claims_info_6.12.24.csv"
+	additional_file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/Additional_Claims_info_9.20.24.csv"
 	process_file_name(file_name, additional_file_name)
 	f.close()
