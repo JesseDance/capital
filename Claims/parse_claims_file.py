@@ -213,16 +213,21 @@ def print_list(sorted_claim_list_with_memo):
 	print(json.dumps(sorted_claim_list_with_memo[0], indent = 4))
 	print(json.dumps(list_of_names, indent = 4))
 	print(json.dumps(list_of_payee_ids, indent = 4))
+	number_match_error = 0
+	successful_matches = 0
 	for claim in sorted_claim_list_with_memo:
-		number_match_error = 0
 		if claim['Seller Name'] == '':
 			number_match_error += 1
+			print(json.dumps(claim, indent = 4))
+		if claim['Seller Name'] != '':
+			successful_matches += 1
 		#print(claim)
 
 	#distinct_name = ''
 	#claims_by_distinct_name = list(filter(lambda name: name['Payee Name'] == distinct_name, sorted_claim_list_with_memo))
 
 	print(f'number of match errors: {number_match_error}')
+	print(f'number of successful_matches: {successful_matches}')
 
 
 def create_list_of_names(sorted_claim_list):
@@ -240,8 +245,8 @@ def create_list_of_payee_ids(sorted_claim_list):
 
 if __name__ == "__main__":
 
-	file_name = "/home/jessedance/DRK_dev/capital/Claims/CLAIMS_20240610140346166"
-	additional_file_name = "/home/jessedance/DRK_dev/capital/Claims/Additional_Claims_info_6.12.24.csv"
+	file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/CLAIMS_2024082215202191"
+	additional_file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/Additional_Claims_info_6.12.24.csv"
 
 	sorted_claim_list_with_memo, list_of_names, list_of_payee_ids = parse_claim_files(file_name, additional_file_name)
 
