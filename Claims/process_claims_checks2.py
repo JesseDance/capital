@@ -5,6 +5,7 @@ import calendar
 import uuid
 import json
 import xmltodict
+import os
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from decimal import Decimal
 from sqs_send_message import send_fifo_sqs_message
@@ -12,7 +13,11 @@ from boto_session_manager import select_service
 from sqs_get_message_v2 import receive_message, delete_message
 import csv
 
-f = open("claims_status.csv", "w")
+today = date.today()
+today_str = str(today)
+log_file_date = f"Claims-log-{today}.csv"
+log_file_name = os.path.join("/home/jessedance/DRK_dev/capital_output_logs/claims_logs/", log_file_date)
+f = open(log_file_name, "w")
 
 def process_file_name(file_name, additional_file_name):
 
@@ -23,8 +28,7 @@ def process_file_name(file_name, additional_file_name):
 	print("Check Date : ", check_date)
 	print()
 
-	today = date.today()
-	today_str = str(today)
+	
 	job_uuid = get_uuid()
 	request_msg_que = 'https://sqs.us-east-2.amazonaws.com/028067736227/qb_xml_requests_msg_que.fifo'
 	response_msg_que = 'https://sqs.us-east-2.amazonaws.com/028067736227/vendor_response_msg_que.fifo'
@@ -124,22 +128,27 @@ def process_file_name(file_name, additional_file_name):
 
 			payee_type, vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident = get_payee_data_from_claim(claim_group)
 
-			data_changes = False
-			#@@data_changes = compare_se_to_qb_data(vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident, qb_companyname, qb_addr1, qb_addr2, qb_addr3, qb_city, qb_state, qb_postalcode, qb_country, qb_phone, qb_email, qb_notes, qb_vendortaxident, qb_nameoncheck)
+			#@@data_changes = False
+			data_changes = compare_se_to_qb_data(vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident, qb_companyname, qb_addr1, qb_addr2, qb_addr3, qb_city, qb_state, qb_postalcode, qb_country, qb_phone, qb_email, qb_notes, qb_vendortaxident, qb_nameoncheck)
 			
-			
+			'''
 			if data_changes == True:
+				
 				
 				payeeactive = '1'
 				completed_vendor_mod_template = create_vendor_mod(qb_listid, qb_edit_sequence, payeeactive, companyname, addr1, addr2, addr3, city, state, postalcode)
 				vendor_mod_sqs_msg = create_sqs_msg(completed_vendor_mod_template, today_str, job_uuid, request_msg_que, response_msg_que)	
 				send_sqs_msg(vendor_mod_sqs_msg, request_msg_que)
 				received_vendor_mod_sqs_msg = receive_sqs_msg(response_msg_que)
+				
+
 
 				csv_line = f'"QB vendor modified", "{vendor_name}", "{companyname}", "{addr1}", "{addr2}", "{addr3}", "{city}", "{state}", "{postalcode}", "{phone}", "{email}", "{notes}", "{vendortaxident}"\n'
 				f.write(csv_line)
 				if prev_payee != payee_id:
 					vendors_modified +=1
+			'''			
+
 			prev_payee = payee_id
 				
 

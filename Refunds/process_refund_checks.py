@@ -5,6 +5,7 @@ import calendar
 import uuid
 import json
 import xmltodict
+import os
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from decimal import Decimal
 from sqs_send_message import send_fifo_sqs_message
@@ -12,7 +13,12 @@ from boto_session_manager import select_service
 from sqs_get_message_v2 import receive_message, delete_message
 import csv
 
-f = open("refunds_status.csv", "w")
+today = date.today()
+today_str = str(today)
+log_file_date = f"Refunds-log-{today}.csv"
+log_file_name = os.path.join("/home/jessedance/DRK_dev/capital_output_logs/claims_logs/", log_file_date)
+f = open(log_file_name, "w")
+
 
 
 
@@ -25,8 +31,7 @@ def process_file_name(file_name, additional_file_name):
 	print("Check Date : ", check_date)
 	print()
 
-	today = date.today()
-	today_str = str(today)
+	
 	job_uuid = get_uuid()
 	request_msg_que = 'https://sqs.us-east-2.amazonaws.com/028067736227/qb_xml_requests_msg_que.fifo'
 	response_msg_que = 'https://sqs.us-east-2.amazonaws.com/028067736227/vendor_response_msg_que.fifo'

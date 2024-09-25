@@ -1,6 +1,7 @@
 import csv
 import json
 from decimal import Decimal
+from datetime import date
 
 
 
@@ -169,7 +170,7 @@ def create_claim_list_of_dicts(file_name):
 	'''
 
 	#sorts the list by name and claim number
-	sorted_claim_list = sorted(claim_list, key=lambda x: (x['Payee Name'], x['Claim Number']))
+	sorted_claim_list = sorted(claim_list, key=lambda x: (x['Payee Number'], x['Claim Loss Date'], x['Claim Number']))
 
 	return sorted_claim_list
 
@@ -221,7 +222,7 @@ def print_list(sorted_claim_list_with_memo):
 			print(json.dumps(claim, indent = 4))
 		if claim['Seller Name'] != '':
 			successful_matches += 1
-		#print(claim)
+		print(claim['Claim Loss Date']+" Payee number: "+claim['Payee Number']+" "+claim['Payee Name'])
 
 	#distinct_name = ''
 	#claims_by_distinct_name = list(filter(lambda name: name['Payee Name'] == distinct_name, sorted_claim_list_with_memo))
@@ -251,6 +252,7 @@ if __name__ == "__main__":
 	sorted_claim_list_with_memo, list_of_names, list_of_payee_ids = parse_claim_files(file_name, additional_file_name)
 
 	print_list(sorted_claim_list_with_memo)
+	print(date.today())
 	
 	
 	
