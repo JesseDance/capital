@@ -222,7 +222,7 @@ def print_list(sorted_claim_list_with_memo):
 			print(json.dumps(claim, indent = 4))
 		if claim['Seller Name'] != '':
 			successful_matches += 1
-		print(claim['Claim Loss Date']+" Payee number: "+claim['Payee Number']+" "+claim['Payee Name'])
+		print("Loss Date: "+claim['Claim Loss Date']+" Payee number: "+claim['Payee Number'] +" Claim number: "+claim['Claim Number']+" "+claim['Payee Name']+" Address: "+claim['Payee Address1'])
 
 	#distinct_name = ''
 	#claims_by_distinct_name = list(filter(lambda name: name['Payee Name'] == distinct_name, sorted_claim_list_with_memo))

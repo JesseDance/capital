@@ -100,8 +100,8 @@ def process_file_name(file_name, additional_file_name):
 
 			payee_type, vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident = get_payee_data_from_claim(claim_group)
 			
-			vendor_added = 'Y'
-			#@@vendor_added = process_vendor_add_template(today_str, job_uuid, request_msg_que, response_msg_que, vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, phone, email, notes, vendortaxident)
+			#vendor_added = 'Y'
+			vendor_added = process_vendor_add_template(today_str, job_uuid, request_msg_que, response_msg_que, vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, phone, email, notes, vendortaxident)
 			
 			if vendor_added == 'Y':
 				csv_line = f'"QB vendor added", "{payee_id}", "{companyname}", "{addr1}", "{addr2}", "{addr3}", "{city}", "{state}", "{postalcode}", "{phone}", "{email}", "{notes}", "{vendortaxident}"\n'
@@ -128,8 +128,8 @@ def process_file_name(file_name, additional_file_name):
 
 			payee_type, vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident = get_payee_data_from_claim(claim_group)
 
-			#@@data_changes = False
-			data_changes = compare_se_to_qb_data(vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident, qb_companyname, qb_addr1, qb_addr2, qb_addr3, qb_city, qb_state, qb_postalcode, qb_country, qb_phone, qb_email, qb_notes, qb_vendortaxident, qb_nameoncheck)
+			data_changes = False
+			#@@data_changes = compare_se_to_qb_data(vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident, qb_companyname, qb_addr1, qb_addr2, qb_addr3, qb_city, qb_state, qb_postalcode, qb_country, qb_phone, qb_email, qb_notes, qb_vendortaxident, qb_nameoncheck)
 			
 			'''
 			if data_changes == True:
@@ -170,8 +170,8 @@ def process_file_name(file_name, additional_file_name):
 		payee_id = get_group_payee_id(claim_group)
 
 		check_amount = 0
-		check_filled = 'Y'
-		#check_filled = process_bill_template(today_str, job_uuid, request_msg_que, response_msg_que, payee_id, check_date, claim_group)
+		#@@check_filled = 'Y'
+		check_filled = process_bill_template(today_str, job_uuid, request_msg_que, response_msg_que, payee_id, check_date, claim_group)
 		if check_filled == 'Y':	
 			checks_processed +=1
 

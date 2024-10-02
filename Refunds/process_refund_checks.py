@@ -16,7 +16,7 @@ import csv
 today = date.today()
 today_str = str(today)
 log_file_date = f"Refunds-log-{today}.csv"
-log_file_name = os.path.join("/home/jessedance/DRK_dev/capital_output_logs/claims_logs/", log_file_date)
+log_file_name = os.path.join("/home/jessedance/DRK_dev/capital_output_logs/refunds_logs/", log_file_date)
 f = open(log_file_name, "w")
 
 
