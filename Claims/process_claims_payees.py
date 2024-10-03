@@ -126,7 +126,7 @@ def process_file_name(file_name, additional_file_name):
 			payee_type, vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident = get_payee_data_from_claim(claim)
 
 			#@@data_changes = False
-			data_changes = compare_se_to_qb_data(vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident, qb_companyname, qb_addr1, qb_addr2, qb_addr3, qb_city, qb_state, qb_postalcode, qb_country, qb_phone, qb_email, qb_notes, qb_vendortaxident, qb_nameoncheck)
+			data_changes = compare_claim_to_qb_data(vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident, qb_companyname, qb_addr1, qb_addr2, qb_addr3, qb_city, qb_state, qb_postalcode, qb_country, qb_phone, qb_email, qb_notes, qb_vendortaxident, qb_nameoncheck)
 			
 			
 			if data_changes == True:
@@ -163,17 +163,6 @@ def process_file_name(file_name, additional_file_name):
 	print("vendors not created: ", vendors_not_created)
 	print("vendors modified: ", vendors_modified)
 	print()
-
-
-	
-
-
-
-def get_group_payee_id(claim_group):
-	for claim in claim_group:
-		group_payee_id = claim['Payee Number']
-
-	return group_payee_id
 
 
 
@@ -388,7 +377,7 @@ def create_vendor_add_template(payee_active, payeenumber, companyname, addr1, ad
 	return completed_template
 
 
-def compare_se_to_qb_data(payeenumber,companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident, qb_companyname, qb_addr1, qb_addr2, qb_addr3, qb_city, qb_state, qb_postalcode, qb_country, qb_phone, qb_email, qb_notes, qb_vendortaxident, qb_nameoncheck):
+def compare_claim_to_qb_data(payeenumber,companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident, qb_companyname, qb_addr1, qb_addr2, qb_addr3, qb_city, qb_state, qb_postalcode, qb_country, qb_phone, qb_email, qb_notes, qb_vendortaxident, qb_nameoncheck):
 
 	print("COMPANY NAME")
 	print(companyname)
@@ -610,18 +599,6 @@ def get_uuid():
 
 
 
-def create_check_template(payee_id, check_date, claim_group):
-
-	env = Environment(loader=FileSystemLoader("templates/"),autoescape=select_autoescape())
-	template = env.get_template("CheckAdd-claims.xml")
-
-	FullName = payee_id
-	TxnDate = check_date
-	Claim_List = claim_group
-	completed_template = template.render(FullName=FullName, TxnDate=TxnDate, Claim_List=Claim_List)
-
-	return completed_template
-
 def create_sqs_msg(completed_template, today_str, job_uuid, request_msg_que, response_msg_que):
 
 	claim_dict = {}
@@ -729,27 +706,6 @@ def convert_xml_to_json(quickbooks_response_xml):
 
 	return quickbooks_response_json
 
-def process_bill_template(today_str, job_uuid, request_msg_que, response_msg_que, payee_id, check_date, claim_group):
-
-	completed_template = create_check_template(payee_id, check_date, claim_group)
-	commission_msg = create_sqs_msg(completed_template, today_str, job_uuid, request_msg_que, response_msg_que )
-	send_sqs_msg(commission_msg, request_msg_que)
-	qb_response_dict = receive_sqs_msg(response_msg_que)
-	api_name = "CheckAddRs" 
-	job_number, job_date, request_date_time, response_date_time, request_number, request_msg_que, response_msg_que, quickbooks_response_dict = get_response_details(qb_response_dict)
-	statuscode, statusseverity, statusmessage = get_response_status(quickbooks_response_dict, api_name)
-		
-	if statuscode == "0":
-		check_filled = 'Y'	
-	else:
-		check_filled = 'N'
-
-	print(statuscode)
-	print(statusseverity)
-	print(statusmessage)
-	#exit()
-				
-	return check_filled
 
 	
 def create_csv_vendor_headings(today_str, file_name):
