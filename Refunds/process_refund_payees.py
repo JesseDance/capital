@@ -151,7 +151,7 @@ def process_file_name(file_name, additional_file_name):
 				csv_line = f'"QB VENDOR EXCEPTION", "{vendor_name}", "{companyname}", "{addr1}", "{addr2}", "{addr3}", "{city}", "{state}", "{postalcode}", "{phone}", "{email}", "{notes}", "{vendortaxident}"\n'
 				f.write(csv_line)
 				if prev_payee != payee_id:
-					vendors_modified += 1
+					vendor_exceptions += 1
 
 
 			prev_payee = payee_id
@@ -843,7 +843,10 @@ def write_csv_lines_from_list(line_list):
 
 def write_pac_refunds(pac_refund_list, file_name, today_str):
 
+	
+
 	output_file_name = f"pac_extract_{today_str}.csv"
+	output_file_name = os.path.join("/home/jessedance/DRK_dev/capital_output_logs/refunds_logs/", output_file_name)
 
 	with open(output_file_name, mode='w', newline='') as j:
 
@@ -873,6 +876,7 @@ def write_pac_refunds(pac_refund_list, file_name, today_str):
 def write_nvps_refunds(nvps_refund_list, file_name, today_str):
 
 	output_file_name = f"nvps_extract_{today_str}.csv"
+	output_file_name = os.path.join("/home/jessedance/DRK_dev/capital_output_logs/refunds_logs/", output_file_name)
 
 	with open(output_file_name, mode='w', newline='') as k:
 
