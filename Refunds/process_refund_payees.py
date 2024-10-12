@@ -1,4 +1,4 @@
-from parse_claims_file import parse_claim_files
+from parse_cancellations_file import parse_cancellation_file
 from datetime import date
 import datetime
 import calendar
@@ -15,17 +15,17 @@ import csv
 
 today = date.today()
 today_str = str(today)
-log_file_date = f"Claims-Payees-Report-{today}.csv"
-log_file_name = os.path.join("/home/jessedance/DRK_dev/capital_output_logs/claims_logs/", log_file_date)
+log_file_date = f"Refunds-log-{today}.csv"
+log_file_name = os.path.join("/home/jessedance/DRK_dev/capital_output_logs/refunds_logs/", log_file_date)
 f = open(log_file_name, "w")
 
 def process_file_name(file_name, additional_file_name):
 
-	claims_list_of_dicts, list_of_names, list_of_payee_ids = parse_claim_files(file_name, additional_file_name)
-	month_name, report_date = get_check_dates()
+	cancellations_list_of_dicts, list_of_names, list_of_payee_ids, pac_refund_list, nvps_refund_list = parse_cancellation_file(file_name, additional_file_name)
+	month_name, check_date = get_check_dates()
 	print()
 	print("Month Name : ", month_name)
-	print("Report Date : ", report_date)
+	print("Check Date : ", check_date)
 	print()
 
 	
@@ -51,11 +51,11 @@ def process_file_name(file_name, additional_file_name):
 
 		print()
 		print(payee_id)
-		claims_by_payee_id = list(filter(lambda name: name['Payee Number'] == payee_id, claims_list_of_dicts))
+		cancellations_by_id = list(filter(lambda name: name['Account'] == payee_id, cancellations_list_of_dicts))
 
-		#@@ vendor_found = 'Y'
+		#@@vendor_found = 'Y'
 		vendor_found, qb_listid, qb_edit_sequence, qb_name, qb_companyname, qb_addr1, qb_addr2, qb_addr3, qb_city, qb_state, qb_postalcode, qb_country, qb_phone, qb_email, qb_notes, qb_vendortaxident, qb_nameoncheck = process_vendor_query_template(today_str, job_uuid, request_msg_que, response_msg_que, payee_id)
-		
+
 
 		if vendor_found == "N":
 			print('VVVVVVVVVVVVVVVVVVVVVVV')
@@ -66,16 +66,18 @@ def process_file_name(file_name, additional_file_name):
 			if prev_payee != payee_id:
 				payees_not_found += 1
 			prev_payee = payee_id
-
-			for claim in claims_by_payee_id:
-				payee_type, vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident = get_payee_data_from_claim(claim)
+			
+			for cancellation in cancellations_by_id:
+				vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident = get_payee_data_from_cancellation(cancellation)
 				break
 
-			#@@vendor_added = 'Y'
+			csv_line = f'"QB vendor not found", "{payee_id}", "{companyname}", "{addr1}", "{addr2}", "{addr3}", "{city}", "{state}", "{postalcode}", "{phone}", "{email}", "{notes}", "{vendortaxident}"\n'
+			f.write(csv_line)
+
+			
 			vendor_added = process_vendor_add_template(today_str, job_uuid, request_msg_que, response_msg_que, vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, phone, email, notes, vendortaxident)
 			
 			if vendor_added == 'Y':
-
 				print('ZZZZZZZZZZZZZZZZZZZZZZZ')
 				print('Z                     Z')
 				print('Z    PAYEE CREATED    Z')
@@ -84,7 +86,8 @@ def process_file_name(file_name, additional_file_name):
 
 				csv_line = f'"QB vendor added", "{payee_id}", "{companyname}", "{addr1}", "{addr2}", "{addr3}", "{city}", "{state}", "{postalcode}", "{phone}", "{email}", "{notes}", "{vendortaxident}"\n'
 				f.write(csv_line)
-				vendors_created += 1
+				if prev_payee != payee_id:
+					vendors_created += 1
 
 				vendor_found, qb_listid, qb_edit_sequence, qb_name, qb_companyname, qb_addr1, qb_addr2, qb_addr3, qb_city, qb_state, qb_postalcode, qb_country, qb_phone, qb_email, qb_notes, qb_vendortaxident, qb_nameoncheck = process_vendor_query_template(today_str, job_uuid, request_msg_que, response_msg_que, payee_id)
 				
@@ -94,13 +97,15 @@ def process_file_name(file_name, additional_file_name):
 					print('X    ERROR FINDING PAYEE     X')
 					print('X                            X')
 					print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
-	
+				
 				
 			if vendor_added == 'N':
+
 				csv_line = f'"QB vendor not added", "{vendor_name}", "{companyname}", "{addr1}", "{addr2}", "{addr3}", "{city}", "{state}", "{postalcode}", "{phone}", "{email}", "{notes}", "{vendortaxident}"\n'
 				f.write(csv_line)
-				vendors_not_created += 1
-				#create list of claims that were not processed
+				if prev_payee != payee_id:
+					vendors_not_created += 1
+				prev_payee = payee_id
 
 				print('ZZZZZZZZZZZZZZZZZZZZZZZZZZZ')
 				print('Z                         Z')
@@ -108,27 +113,27 @@ def process_file_name(file_name, additional_file_name):
 				print('Z                         Z')
 				print('ZZZZZZZZZZZZZZZZZZZZZZZZZZZ')
 
-
+			
 		if vendor_found == "Y":
 			print('VVVVVVVVVVVVVVVVVVVVVVV')
 			print(payee_id)
 			print('payee found')
 			print('VVVVVVVVVVVVVVVVVVVVVVV')
-			
+
 			if prev_payee != payee_id:
 				payees_found += 1
+			
 
+		for cancellation in cancellations_by_id:
 
-		for claim in claims_by_payee_id:
-
-			payee_type, vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident = get_payee_data_from_claim(claim)
+			vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident = get_payee_data_from_cancellation(cancellation)
 
 			#@@data_changes = False
-			data_changes = compare_claim_to_qb_data(vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident, qb_companyname, qb_addr1, qb_addr2, qb_addr3, qb_city, qb_state, qb_postalcode, qb_country, qb_phone, qb_email, qb_notes, qb_vendortaxident, qb_nameoncheck)
+			data_changes = compare_se_to_qb_data(vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident, qb_companyname, qb_addr1, qb_addr2, qb_addr3, qb_city, qb_state, qb_postalcode, qb_country, qb_phone, qb_email, qb_notes, qb_vendortaxident, qb_nameoncheck)
 			
 			
 			if data_changes == True:
-				
+
 				print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
 				print('X                            X')
 				print('X      EXCEPTION FOUND       X')
@@ -146,20 +151,24 @@ def process_file_name(file_name, additional_file_name):
 				csv_line = f'"QB VENDOR EXCEPTION", "{vendor_name}", "{companyname}", "{addr1}", "{addr2}", "{addr3}", "{city}", "{state}", "{postalcode}", "{phone}", "{email}", "{notes}", "{vendortaxident}"\n'
 				f.write(csv_line)
 				if prev_payee != payee_id:
-					vendor_exceptions +=1
-					
+					vendors_modified += 1
+
 
 			prev_payee = payee_id
-				
 
-	create_csv_vendor_totals(payee_count, payees_found, vendors_modified, payees_not_found, vendors_created, vendors_not_created)
 
 	print("payees found : ", payees_found)
 	print("payees not found : ", payees_not_found)
 	print("vendors created: ", vendors_created)
 	print("vendors not created: ", vendors_not_created)
 	print("vendors modified: ", vendors_modified)
-	print()
+	print()			
+
+	create_csv_vendor_totals(payee_count, payees_found, vendors_modified, payees_not_found, vendors_created, vendors_not_created)
+
+
+	write_pac_refunds(pac_refund_list, file_name, today_str)
+	write_nvps_refunds(nvps_refund_list, file_name, today_str)
 
 
 
@@ -307,7 +316,6 @@ def get_vendor_query_data(quickbooks_response_dict):
 	return listid, edit_sequence, vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident, nameoncheck
 
 
-
 def process_vendor_add_template(today_str, job_uuid, request_msg_que, response_msg_que, payee_id ,companyname, addr1, addr2, addr3, city, state, postalcode, phone, email, notes, vendortaxident):
 
 	payee_active = '1'
@@ -319,7 +327,6 @@ def process_vendor_add_template(today_str, job_uuid, request_msg_que, response_m
 	job_number, job_date, request_date_time, response_date_time, request_number, request_msg_que, response_msg_que, quickbooks_response_dict = get_response_details(qb_response_dict)
 	statuscode, statusseverity, statusmessage = get_response_status(quickbooks_response_dict, api_name)
 	
-
 	if statuscode == "0" :
 		vendor_added= "Y"
 	else:
@@ -328,27 +335,25 @@ def process_vendor_add_template(today_str, job_uuid, request_msg_que, response_m
 	return vendor_added
 
 
-def get_payee_data_from_claim(claim):
+def get_payee_data(cancellation_group):
 
-	
-	payee_type = claim['Payee Type']
-	vendor_name = claim['Payee Number']
-	companyname = claim['Payee Name']
-	addr1 = claim['Payee Address1']
-	addr2 = claim['Payee Address2']
-	addr3 = ""
-	city = claim['Payee City']
-	state = claim['Payee State']
-	postalcode = claim['Payee Zip']
-	country = ""
-	phone = ""
-	email = ""
-	vendortaxident = ""
-	notes = ""
+	for cancellation in cancellation_group:
+		vendor_name = cancellation['Account']
+		companyname = cancellation['Payee Name']
+		addr1 = cancellation['Payee Address1']
+		addr2 = cancellation['Payee Address2']
+		addr3 = ""
+		city = cancellation['Payee City']
+		state = cancellation['Payee State']
+		postalcode = cancellation['Payee Zip']
+		country = ""
+		phone = ""
+		email = ""
+		vendortaxident = ""
+		notes = ""
 
-	return payee_type, vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident
-
-
+	return vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident
+			
 
 def create_vendor_add_template(payee_active, payeenumber, companyname, addr1, addr2, addr3, city, state, postalcode, phone, email, notes, vendortaxident):
 	
@@ -369,12 +374,12 @@ def create_vendor_add_template(payee_active, payeenumber, companyname, addr1, ad
 	Phone = phone 
 	VendorTaxIdent = vendortaxident
 	Notes = notes
-	completed_template = template.render(IsActive=IsActive,VendorAddName=VendorAddName ,CompanyName=CompanyName, Addr1=Addr1, Addr2=Addr2, Addr3=Addr3, City=City, State=State, PostalCode=PostalCode, NameOnCheck=NameOnCheck)
+	completed_template = template.render(IsActive=IsActive,VendorAddName=VendorAddName ,CompanyName=CompanyName, Addr1=Addr1, Addr2=Addr2, Addr3=Addr3, City=City, State=State, PostalCode=PostalCode, Phone=Phone, Email=Email, VendorTaxIdent=VendorTaxIdent, Notes=Notes, NameOnCheck=NameOnCheck)
 
 	return completed_template
 
 
-def compare_claim_to_qb_data(payeenumber,companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident, qb_companyname, qb_addr1, qb_addr2, qb_addr3, qb_city, qb_state, qb_postalcode, qb_country, qb_phone, qb_email, qb_notes, qb_vendortaxident, qb_nameoncheck):
+def compare_se_to_qb_data(payeenumber, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident, qb_companyname, qb_addr1, qb_addr2, qb_addr3, qb_city, qb_state, qb_postalcode, qb_country, qb_phone, qb_email, qb_notes, qb_vendortaxident, qb_nameoncheck):
 
 	print("COMPANY NAME")
 	print(companyname)
@@ -529,7 +534,7 @@ def compare_claim_to_qb_data(payeenumber,companyname, addr1, addr2, addr3, city,
 		#print(vendortaxident, qb_vendortaxident)
 		#data_changes = True
 	
-	#print("Data Changes ", data_changes)
+	print("Data Changes ", data_changes)
 	
 	'''
 	if data_changes == True:
@@ -545,21 +550,17 @@ def compare_claim_to_qb_data(payeenumber,companyname, addr1, addr2, addr3, city,
 
 		print(qb_data)
 		print(se_data)
-	
 	'''
+		
 
-	print("Data changes:", data_changes)
-	
 	return data_changes 
-
-
 
 
 def create_vendor_mod(list_id, edit_sequence, payeeactive, company_name, addr1, addr2, addr3, city, state, postal_code):
 
 	env = Environment(loader=FileSystemLoader("templates/"),autoescape=select_autoescape())
 	template = env.get_template("Vendor_Mod.XML")
-	completed_template = template.render(List_ID=list_id, Edit_Sequence=edit_sequence, IsActive=payeeactive, Company_Name=company_name, NameOnCheck=company_name, Addr1=addr1, Addr2=addr2, Addr3=addr3, City=city, State=state, Postal_Code=postal_code)
+	completed_template = template.render(List_ID=list_id, Edit_Sequence=edit_sequence, IsActive=payeeactive, Company_Name=company_name, Addr1=addr1, Addr2=addr2, Addr3=addr3, City=city, State=state, Postal_Code=postal_code, NameOnCheck=company_name)
 	
 	print("*KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK")
 	print(completed_template)
@@ -568,8 +569,6 @@ def create_vendor_mod(list_id, edit_sequence, payeeactive, company_name, addr1, 
 	
 	
 	return completed_template
-
-
 
 
 def get_check_dates():
@@ -595,34 +594,32 @@ def get_uuid():
 	return current_uuid_str
 
 
-
 def create_sqs_msg(completed_template, today_str, job_uuid, request_msg_que, response_msg_que):
 
-	claim_dict = {}
-	#claim_list = []
+	cancellation_dict = {}
+	#cancellation_list = []
 	
 	request_date_time = datetime.datetime.now()
 	request_date_time = str(request_date_time)			
 	current_uuid_str = get_uuid()
-	claim_dict["job_number"] = job_uuid
-	claim_dict["job_date"] = today_str
-	claim_dict["request_date_time"] = request_date_time
-	claim_dict["response_date_time"] = " "
-	claim_dict["request_number"] = current_uuid_str
-	claim_dict["request_msg_que"] = request_msg_que
-	claim_dict['response_msg_que'] = response_msg_que
-	claim_dict["quickbooks_request_xml"] = completed_template
-	claim_msg= json.dumps(claim_dict)
-	#claim_list.append(claim_string)
-	claim_msg = claim_msg + "\n"
+	cancellation_dict["job_number"] = job_uuid
+	cancellation_dict["job_date"] = today_str
+	cancellation_dict["request_date_time"] = request_date_time
+	cancellation_dict["response_date_time"] = " "
+	cancellation_dict["request_number"] = current_uuid_str
+	cancellation_dict["request_msg_que"] = request_msg_que
+	cancellation_dict['response_msg_que'] = response_msg_que
+	cancellation_dict["quickbooks_request_xml"] = completed_template
+	cancellation_msg= json.dumps(cancellation_dict)
+	#cancellation_list.append(cancellation_string)
+	cancellation_msg = cancellation_msg + "\n"
 	
 	print()
-	print("SQS Message : ",claim_msg)
+	print("SQS Message : ",cancellation_msg)
 	print()
 	
-
 	
-	return claim_msg
+	return cancellation_msg
 
 
 def send_sqs_msg(message, request_msg_que):
@@ -643,7 +640,7 @@ def send_sqs_msg(message, request_msg_que):
 		
 	return
 
-	
+
 def receive_sqs_msg(response_msg_que):
 
 	sqs_msg = None
@@ -670,7 +667,6 @@ def receive_sqs_msg(response_msg_que):
 			print("")
 
 	return sqs_msg
-
 
 def get_response_details(response_msg_dict):
 
@@ -704,7 +700,6 @@ def convert_xml_to_json(quickbooks_response_xml):
 	return quickbooks_response_json
 
 
-	
 def create_csv_vendor_headings(today_str, file_name):
 
 
@@ -725,7 +720,7 @@ def create_csv_vendor_headings(today_str, file_name):
 
 	csv_data = "\n"
 	f.write(csv_data)
-	csv_data = "Claims extract processing"
+	csv_data = "Refunds extract processing"
 	f.write(csv_data)
 	csv_data = "\n"
 	f.write(csv_data)
@@ -746,7 +741,7 @@ def create_csv_vendor_headings(today_str, file_name):
 	return
 
 
-def create_csv_vendor_totals(payee_count, payees_found, payees_modified, payees_not_found, vendors_created, vendors_not_created):
+def create_csv_vendor_totals(payee_count, payees_found, vendors_modified, payees_not_found, vendors_created, vendors_not_created):
 
 	csv_data = "\n"
 	f.write(csv_data)
@@ -754,7 +749,7 @@ def create_csv_vendor_totals(payee_count, payees_found, payees_modified, payees_
 	f.write(csv_data)
 	csv_data = f"Total Payees found in QB , {payees_found} \n" 
 	f.write(csv_data)
-	csv_data = f"Total Payees modified in QB , {payees_modified} \n" 
+	csv_data = f"Total Payees modified in QB , {vendors_modified} \n" 
 	f.write(csv_data)
 	csv_data = f"Total Payees not found in QB , {payees_not_found} \n" 
 	f.write(csv_data)
@@ -770,148 +765,65 @@ def create_csv_vendor_totals(payee_count, payees_found, payees_modified, payees_
 	return
 
 
+def create_csv_refunds_processed_headings():
 
-def create_csv_claims_processed_headings():
 
-	#col_0 = 'Claim_Amt'
+	col_1 = 'Payee Number'
+	col_2 = 'Payee Name'
 
-	#col_1 = 'Record Id'
-	#col_2 = 'Carrier'
-	col_3 = 'Payee Number'
-	col_4 = 'Claim Number'
+	#col_3 = 'Contract Number'
 
-	#col_5 = 'Contract Number'
-	#col_6 = 'Sequence Number'
-	#col_7 = 'Check Date'
-	col_8 = 'Claim_Amt'
-	'''
-	col_9 = 'Comment1'
-	col_10 = 'Comment2'
-	col_11 = 'Check Number'
-	col_12 = 'Payee Name'
-	col_13 = 'Payee Address1'
-	col_14 = 'Payee Address2'
-	col_15 = 'Payee City'
-	col_16 = 'Payee State'
-	col_17 = 'Payee Zip'
-	col_18 = 'Repair Order'
-	col_19 = 'Tax Amount 1'
-	col_20 = 'Tax 1 Registration Number'
-	col_21 = 'Tax Amount 2'
-	col_22 = 'Tax 2 Registration Number'
-	col_23 = 'Payee Language'
-	col_24 = 'Customer First Name'
-	col_25 = 'Customer Last Name'
-	col_26 = 'Rate Book'
-	col_27 = 'Plan Code'
-	col_28 = 'Dealer State'
-	col_29 = 'Program ID'
-	col_30 = 'New or Used'
-	col_31 = 'Line Items'
-	col_32 = 'Dealer Number'
-	col_33 = 'Payee Fax'
-	col_34 = 'Claim Contact'
-	col_35 = 'Claim Payee Memo'
-	col_36 = 'Check Type'
-	col_37 = 'Account Number'
-	col_38 = 'Payee Type'
-	col_39 = 'Claim Loss Date'
-	col_40 = 'Vendor Customer Number'
-	col_41 = 'Check Cleared Date'
-	col_42 = 'VIN'
-	'''
-	col_43 = 'Contract Holder Last Name'
-	col_44 = 'Seller Name'
+	col_4 = 'Refund Ammount'
 
-	csv_data = 'Claims Processed'
+	col_5 = 'Contract Holder Last Name'
+	col_6 = 'Check Amount'
+
+	csv_data = 'Refunds Processed'
 	f.write(csv_data)
 	csv_data = '\n'
 	f.write(csv_data)
-	csv_data = f"{col_3}, {col_4}, {col_8}, {col_43}, {col_44} \n" 
+	csv_data = f"{col_1}, {col_2}, {col_4}, {col_5}, {col_6}\n" 
 	f.write(csv_data)
 
-	return
+def create_csv_refunds_not_processed_headings():
 
-def create_csv_claims_not_processed_headings():
 
-	#col_0 = 'Claim_Amt'
+	col_1 = 'Payee Number'
+	col_2 = 'Payee Name'
 
-	#col_1 = 'Record Id'
-	#col_2 = 'Carrier'
-	col_3 = 'Payee Number'
-	col_4 = 'Claim Number'
+	#col_3 = 'Contract Number'
 
-	#col_5 = 'Contract Number'
-	#col_6 = 'Sequence Number'
-	#col_7 = 'Check Date'
-	col_8 = 'Claim_Amt'
-	'''
-	col_9 = 'Comment1'
-	col_10 = 'Comment2'
-	col_11 = 'Check Number'
-	col_12 = 'Payee Name'
-	col_13 = 'Payee Address1'
-	col_14 = 'Payee Address2'
-	col_15 = 'Payee City'
-	col_16 = 'Payee State'
-	col_17 = 'Payee Zip'
-	col_18 = 'Repair Order'
-	col_19 = 'Tax Amount 1'
-	col_20 = 'Tax 1 Registration Number'
-	col_21 = 'Tax Amount 2'
-	col_22 = 'Tax 2 Registration Number'
-	col_23 = 'Payee Language'
-	col_24 = 'Customer First Name'
-	col_25 = 'Customer Last Name'
-	col_26 = 'Rate Book'
-	col_27 = 'Plan Code'
-	col_28 = 'Dealer State'
-	col_29 = 'Program ID'
-	col_30 = 'New or Used'
-	col_31 = 'Line Items'
-	col_32 = 'Dealer Number'
-	col_33 = 'Payee Fax'
-	col_34 = 'Claim Contact'
-	col_35 = 'Claim Payee Memo'
-	col_36 = 'Check Type'
-	col_37 = 'Account Number'
-	col_38 = 'Payee Type'
-	col_39 = 'Claim Loss Date'
-	col_40 = 'Vendor Customer Number'
-	col_41 = 'Check Cleared Date'
-	col_42 = 'VIN'
-	'''
-	col_43 = 'Contract Holder Last Name'
-	col_44 = 'Seller Name'
+	col_4 = 'Refund Amount'
 
-	csv_data = 'Claims Not Processed'
+	col_5 = 'Contract Holder Last Name'
+	col_6 = 'Check Amount'
+
+	csv_data = 'Refunds Not Processed'
 	f.write(csv_data)
 	csv_data = '\n'
 	f.write(csv_data)
-	csv_data = f"{col_3}, {col_4}, {col_8}, {col_43}, {col_44} \n" 
+	csv_data = f"{col_1}, {col_2}, {col_4}, {col_5}, {col_6}\n" 
 	f.write(csv_data)
 
-	return
 
-
-def create_csv_claims_total_line(total_type, claims_total):
+def create_csv_refunds_total_line(total_type, cancellation_total):
 
 	if total_type == "check":
-		csv_data = f"*, *, *, *, *, {claims_total} \n"
+		csv_data = f" ,  ,  ,  , {cancellation_total} \n"
 		#f.write(csv_data)
 
 	'''
 	if total_type == "payee":
-		csv_data = f"*, *, *, *, *, *, {claims_total} "
+		csv_data = f"*, *, *, *, *, {cancellation_total} "
 		#f.write(csv_data)
 	'''
 
 	if total_type == "processed":
-		csv_data = f"Total processed, {claims_total} \n"
+		csv_data = f"Total processed, {cancellation_total} \n"
 		#f.write(csv_data)
 
 	if total_type == "not processed":
-		csv_data = f"Total not processed, {claims_total} \n"
+		csv_data = f"Total not processed, {cancellation_total} \n"
 		#f.write(csv_data)
 
 
@@ -929,11 +841,66 @@ def write_csv_lines_from_list(line_list):
 
 	return
 
+def write_pac_refunds(pac_refund_list, file_name, today_str):
+
+	output_file_name = f"pac_extract_{today_str}.csv"
+
+	with open(output_file_name, mode='w', newline='') as j:
+
+
+		csv_data = "PAC refunds extract processing, \n"
+		j.write(csv_data)
+
+		csv_data = "\n"
+		j.write(csv_data)
+		csv_data = f"Date processed:, {today_str}, \n"
+		j.write(csv_data)
+		csv_data = f"File name:, {file_name}, \n"
+		j.write(csv_data)
+		csv_data = "\n"
+
+		headers = pac_refund_list[0].keys()
+
+		csv_writer = csv.DictWriter(j, fieldnames=headers)
+
+		csv_writer.writeheader()
+
+		csv_writer.writerows(pac_refund_list)
+
+
+	return
+
+def write_nvps_refunds(nvps_refund_list, file_name, today_str):
+
+	output_file_name = f"nvps_extract_{today_str}.csv"
+
+	with open(output_file_name, mode='w', newline='') as k:
+
+
+		csv_data = "NVPS refunds extract processing, \n"
+		k.write(csv_data)
+
+		csv_data = "\n"
+		k.write(csv_data)
+		csv_data = f"Date processed:, {today_str}, \n"
+		k.write(csv_data)
+		csv_data = f"File name:, {file_name}, \n"
+		k.write(csv_data)
+		csv_data = "\n"
+
+		headers = nvps_refund_list[0].keys()
+
+		csv_writer = csv.DictWriter(k, fieldnames=headers)
+
+		csv_writer.writeheader()
+
+		csv_writer.writerows(nvps_refund_list)
+
+	return
 
 
 if __name__ == "__main__":
 
-	file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/CLAIMS_2024082215202191"
-	additional_file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/Additional_Claims_info_9.20.24.csv"
+	file_name = "/home/jessedance/DRK_dev/capital_extracts/Refunds_data/REFUNDS_20240612070442343"
+	additional_file_name = "/home/jessedance/DRK_dev/capital_extracts/Refunds_data/PAC sellers list.csv"
 	process_file_name(file_name, additional_file_name)
-	f.close()
