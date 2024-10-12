@@ -41,6 +41,7 @@ def process_file_name(file_name, additional_file_name):
 	vendors_created = 0
 	vendors_not_created = 0
 	vendors_modified = 0
+	vendor_exceptions = 0
 
 
 	create_csv_vendor_headings(today_str, file_name)
@@ -68,7 +69,9 @@ def process_file_name(file_name, additional_file_name):
 				payees_not_found += 1
 			prev_payee = payee_id
 
-			payee_type, vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident = get_payee_data_from_claim(claim_group)
+			for claim in claims_by_payee_id:
+				payee_type, vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident = get_payee_data_from_claim(claim)
+				break
 			
 			#@@vendor_added = 'Y'
 			vendor_added = process_vendor_add_template(today_str, job_uuid, request_msg_que, response_msg_que, vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, phone, email, notes, vendortaxident)
@@ -121,7 +124,7 @@ def process_file_name(file_name, additional_file_name):
 				payees_found += 1
 
 
-		for claim in claims_by_payee_id
+		for claim in claims_by_payee_id:
 
 			payee_type, vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident = get_payee_data_from_claim(claim)
 
