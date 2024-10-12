@@ -335,22 +335,22 @@ def process_vendor_add_template(today_str, job_uuid, request_msg_que, response_m
 	return vendor_added
 
 
-def get_payee_data(cancellation_group):
+def get_payee_data_from_cancellation(cancellation):
 
-	for cancellation in cancellation_group:
-		vendor_name = cancellation['Account']
-		companyname = cancellation['Payee Name']
-		addr1 = cancellation['Payee Address1']
-		addr2 = cancellation['Payee Address2']
-		addr3 = ""
-		city = cancellation['Payee City']
-		state = cancellation['Payee State']
-		postalcode = cancellation['Payee Zip']
-		country = ""
-		phone = ""
-		email = ""
-		vendortaxident = ""
-		notes = ""
+	
+	vendor_name = cancellation['Account']
+	companyname = cancellation['Payee Name']
+	addr1 = cancellation['Payee Address1']
+	addr2 = cancellation['Payee Address2']
+	addr3 = ""
+	city = cancellation['Payee City']
+	state = cancellation['Payee State']
+	postalcode = cancellation['Payee Zip']
+	country = ""
+	phone = ""
+	email = ""
+	vendortaxident = ""
+	notes = ""
 
 	return vendor_name, companyname, addr1, addr2, addr3, city, state, postalcode, country, phone, email, notes, vendortaxident
 			
