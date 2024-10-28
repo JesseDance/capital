@@ -65,7 +65,7 @@ def download_files_from_sftp_directory(remote_directory, local_directory):
         print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    download_files_from_sftp_directory("/Extracts/Payees", "/home/jessedance/Capital Extracts/Commissions")
+    download_files_from_sftp_directory("/Extracts/Reinsurance_Extracts", "/home/jessedance/DRK_dev/capital_extracts/Treaties")
     
     
     

@@ -138,7 +138,7 @@ def rename_sftp_file_name(sftp, existing_sftp_file_name):
 
 
 if __name__ == "__main__":
-	get_sftp_files("/Extracts/Payees", "/home/jessedance/Capital Extracts/Commissions")
+	get_sftp_files("/Extracts/Payees", "/home/jessedance/DRK_dev/capital_extracts/Commissions_data")
 	
 	
 	
