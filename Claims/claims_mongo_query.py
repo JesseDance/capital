@@ -1,4 +1,5 @@
 __version__ = '1.0.0'
+
 import sys
 from datetime import datetime
 from datetime import date
@@ -6,6 +7,7 @@ import os
 import pymongo
 import csv
 import json
+from parse_claims_file import parse_claim_files
 from mongo_connect_package.mongo_connect import setup_mongo_connection
 from bson.objectid import ObjectId
 from bson.json_util import loads
@@ -54,6 +56,21 @@ def find_reinsurance_treaty(mdb, reinsurance_treaty_name):
     ]})
     return response
 
+def get_check_dates():
+
+    today = datetime.date.today()
+    first = today.replace(day=1)
+    lastMonth = first - datetime.timedelta(days=1)
+    lastMonth = lastMonth.strftime("%m")
+    datetime_object = datetime.datetime.strptime(lastMonth, "%m")
+    month_name = datetime_object.strftime("%b")
+    current_year = date.today().year
+    month = int(lastMonth)
+    last_day_month = calendar.monthrange(current_year, month)[1]
+    check_date = f"{current_year}-{lastMonth}-{last_day_month}"
+    
+    return month_name, check_date
+
 def write_report_headings():
 
     col_1 = 'Claim Number'
@@ -78,9 +95,10 @@ def write_treaty_mismatch_to_report(claim_dict):
 
 if __name__ == "__main__":
 
-    treaty_file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/Additional_Claims_info_6.12.24.csv"
-    claim_treaty_list = parse_treaty_file(treaty_file_name)
-    print(json.dumps(claim_treaty_list, indent = 4))
+    file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/CLAIMS_2024082215202191"
+    additional_file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/Additional_Claims_info_9.20.24.csv"
+
+    claim_list, list_of_names, list_of_payee_ids = parse_claim_files(file_name, additional_file_name)
 
     print('ZZZZZZZZZZZZZZZZZZZZZZZZZZZ')
     print('Z                         Z')
@@ -101,7 +119,23 @@ if __name__ == "__main__":
 
     write_report_headings()
 
+    check_date = get_check_dates()
+    check_type = "Claims"
+
+    for payee_id in list_of_payee_ids:
+        
+        qb_vendor_name=payee_id
+
+        result = find_one_qb_vendor_config(mdb=mdb, qb_vendor_name=qb_vendor_name, check_type=check_type, check_date=check_date)
+        print("Mongo DB Date Result : ",result)
+
+'''
+
     for claim_dict in claim_list:
+
+
+
+        
 
         reinsurance_treaty_name = claim_dict['Reinsurance Treaty Name']
         #reinsurance_treaty_name = "Brookmont Insurance Company"
@@ -118,5 +152,7 @@ if __name__ == "__main__":
             print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
 
             write_treaty_mismatch_to_report(claim_dict)
+
+'''
 
     f.close()
