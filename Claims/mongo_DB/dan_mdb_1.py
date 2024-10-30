@@ -2,7 +2,7 @@ __version__ = '1.0.0'
 import sys
 from datetime import datetime
 import pymongo
-
+import json
 from bson.objectid import ObjectId
 from bson.json_util import loads
 
@@ -109,6 +109,12 @@ def find_one_qb_vendor_config(mdb, qb_vendor_name, check_type, check_date):
     ]})
     return response
 
+def serialize(obj):
+    if isinstance(obj, ObjectId):
+        return str(obj)
+    elif isinstance(obj, datetime):
+        return obj.isoformat()
+    raise TypeError(f"Type {type(obj)} not serializable")
 
 
 if __name__ == "__main__":
@@ -142,7 +148,7 @@ if __name__ == "__main__":
     
 
     result = find_one_qb_vendor_config(mdb=mdb, qb_vendor_name=qb_vendor_name, check_type=check_type, check_date=check_date)
-    print("Mongo DB Date Result : ",result)
+    print(json.dumps(result, default = serialize, indent = 4))
 
     print("line 147")
 
