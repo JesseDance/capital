@@ -3,12 +3,13 @@ __version__ = '1.0.0'
 import sys
 from datetime import datetime
 from datetime import date
+import calendar
 import os
 import pymongo
 import csv
 import json
 from parse_claims_file import parse_claim_files
-from mongo_DB.mongo_connect_package.mongo_connect import setup_mongo_connection
+from mongo_connect_package.mongo_connect import setup_mongo_connection
 from bson.objectid import ObjectId
 from bson.json_util import loads
 
@@ -93,6 +94,14 @@ def write_treaty_mismatch_to_report(claim_dict):
     f.write(report_data)
 
 
+def serialize(obj):
+    if isinstance(obj, ObjectId):
+        return str(obj)
+    elif isinstance(obj, datetime):
+        return obj.isoformat()
+    raise TypeError(f"Type {type(obj)} not serializable")
+
+
 if __name__ == "__main__":
 
     file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/CLAIMS_2024082215202191"
@@ -119,9 +128,12 @@ if __name__ == "__main__":
 
     write_report_headings()
 
-    check_date = get_check_dates()
-    check_type = "Claims"
 
+    check_date = datetime(2024,11,4)
+    print("check date: ", check_date)
+    print("alternative check date: ", datetime(2024,11,4))
+    check_type = "Claims"
+    
     for payee_id in list_of_payee_ids:
         
         qb_vendor_name=payee_id
@@ -132,21 +144,17 @@ if __name__ == "__main__":
 
         if result is None:
 
-            print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
-            print('X                            X')
-            print('X    ERROR FINDING PAYEE     X')
-            print('X                            X')
-            print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
-    f.close()
+            print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+            print('X                             X')
+            print('X       NO CONFIG FOUND       X')
+            print('X                             X')
+            print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+    
+    #f.close()
 
-
-    '''
 
     for claim_dict in claim_list:
 
-
-
-        
 
         reinsurance_treaty_name = claim_dict['Reinsurance Treaty Name']
         #reinsurance_treaty_name = "Brookmont Insurance Company"
@@ -156,13 +164,13 @@ if __name__ == "__main__":
 
         if result is None:
 
-            print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
-            print('X                            X')
-            print('X    ERROR FINDING PAYEE     X')
-            print('X                            X')
-            print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+            print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+            print('X                             X')
+            print('X    ERROR FINDING TREATY     X')
+            print('X                             X')
+            print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
 
             write_treaty_mismatch_to_report(claim_dict)
 
     f.close()
-    '''
+    

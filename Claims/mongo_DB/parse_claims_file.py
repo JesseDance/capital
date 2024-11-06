@@ -95,7 +95,6 @@ def create_claim_list_of_dicts(file_name):
 
 				contract_holder_last_name = ''
 				seller_name = ''
-				reinsurance_treaty = ''
 				
 
 				if payee_number == " V":
@@ -149,8 +148,7 @@ def create_claim_list_of_dicts(file_name):
 					'VIN': vin,
 
 					'Contract Holder Last Name': contract_holder_last_name,
-					'Seller Name': seller_name,
-					'Reinsurance Treaty Name': reinsurance_treaty
+					'Seller Name': seller_name
 				}
 
 

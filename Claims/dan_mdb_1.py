@@ -132,7 +132,8 @@ if __name__ == "__main__":
     
     #get_holds_overides_mongo("Greenbrier Chevrolet Buick","Claims Check")
     check_type="Claims"
-    qb_vendor_name="Kozlowski COmpany"
+    #qb_vendor_name="Kozlowski COmpany"
+    qb_vendor_code="20000 V"
     #check_type="Claims Check"
     #qb_vendor_name="Greenbrier Chevrolet Buick"
 
@@ -140,14 +141,15 @@ if __name__ == "__main__":
 
     reinsurance_treaty_name = "Brookmont Insurance Company"
     #reinsurance_treaty_name = "1"
-    check_date = datetime(2024,6,6)
+    check_date = datetime.now()
+    print(check_date)
     print("line 138")
 
     
     
     
 
-    result = find_one_qb_vendor_config(mdb=mdb, qb_vendor_name=qb_vendor_name, check_type=check_type, check_date=check_date)
+    result = find_one_qb_vendor_config(mdb=mdb, qb_vendor_code=qb_vendor_code, check_type=check_type, check_date=check_date)
     print(json.dumps(result, default = serialize, indent = 4))
 
     print("line 147")

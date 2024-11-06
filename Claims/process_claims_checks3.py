@@ -12,6 +12,12 @@ from sqs_send_message import send_fifo_sqs_message
 from boto_session_manager import select_service
 from sqs_get_message_v2 import receive_message, delete_message
 import csv
+import sys
+import pymongo
+from mongo_connect_package.mongo_connect import setup_mongo_connection
+from bson.objectid import ObjectId
+from bson.json_util import loads
+
 
 today = date.today()
 today_str = str(today)
@@ -22,7 +28,7 @@ f = open(log_file_name, "w")
 def process_file_name(file_name, additional_file_name):
 
 	claims_list_of_dicts, list_of_names, list_of_payee_ids = parse_claim_files(file_name, additional_file_name)
-	month_name, check_date = get_check_dates()
+	month_name, check_date, check_date_time = get_check_dates()
 	print()
 	print("Month Name : ", month_name)
 	print("Check Date : ", check_date)
@@ -37,15 +43,6 @@ def process_file_name(file_name, additional_file_name):
 	max_claims_per_check = 15
 	claims_by_payee_id_grouped = []
 
-
-	payee_count = len(list_of_payee_ids)
-	prev_payee = ""
-	payees_found = 0
-	payees_not_found = 0
-	vendors_created = 0
-	vendors_not_created = 0
-	vendors_modified = 0
-
 	checks_processed = 0
 	check_errors = 0 
 	total_payments_processed = 0
@@ -53,8 +50,24 @@ def process_file_name(file_name, additional_file_name):
 
 	create_csv_vendor_headings(today_str, file_name)
 
+	print('ZZZZZZZZZZZZZZZZZZZZZZZZZZZ')
+	print('Z                         Z')
+	print('Z    CONNECTING TO MDB    Z')
+	print('Z                         Z')
+	print('ZZZZZZZZZZZZZZZZZZZZZZZZZZZ')
+
+	mdb = setup_mongo_connection()
+
+	print('ZZZZZZZZZZZZZZZZZZZZZZZZZZZ')
+	print('Z                         Z')
+	print('Z    CONNECT SUCCESS      Z')
+	print('Z                         Z')
+	print('ZZZZZZZZZZZZZZZZZZZZZZZZZZZ')
+
 
 	#first sort into groups of 15 claims by name for each check
+
+
 	for payee_id in list_of_payee_ids:
 
 		print()
@@ -62,8 +75,50 @@ def process_file_name(file_name, additional_file_name):
 		claims_by_payee_id = list(filter(lambda name: name['Payee Number'] == payee_id, claims_list_of_dicts))
 		claims_by_id_max = []
 		sublist_claim_count = 0
+		payee_hold = 'N'
+		payee_override = 'N'
 
+		check_type = "Claims"
+		check_date1 = datetime.datetime.now()
+		print(check_date1)
+		mongo_response_dict = find_one_qb_vendor_config(mdb=mdb, qb_vendor_code=payee_id, check_type=check_type, check_date=check_date1)
+		print('after find one config')
+		if mongo_response_dict is None:
+
+			print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+			print('X                             X')
+			print('X       NO CONFIG FOUND       X')
+			print('X                             X')
+			print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+
+		else:
+			if mongo_response_dict['vendor_on_hold'] == True:
+				payee_hold = 'Y'
+				send_claims_to_hold_report(payee_id, claims_by_payee_id)
+				continue
+
+			if mongo_response_dict['vendor_override'] == True:
+				payee_override = 'Y'
+
+		print('after conditional')
 		for claim in claims_by_payee_id:
+
+			reinsurance_treaty_name = claim['Reinsurance Treaty Name']
+			mongo_treaty_response_dict = find_reinsurance_treaty(mdb, reinsurance_treaty_name)
+
+			if mongo_treaty_response_dict is None:
+
+				print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXxXX')
+				print('X                             X')
+				print('X    ERROR FINDING TREATY     X')
+				print('X                             X')
+				print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXxXX')
+
+			else: 
+				claim.update(mongo_treaty_response_dict)
+
+			if payee_override == 'Y':
+				claim.update(mongo_response_dict)
 
 			sublist_claim_count += 1
 			claims_by_id_max.append(claim)
@@ -108,7 +163,6 @@ def process_file_name(file_name, additional_file_name):
 			processed_line_list.append(csv_line)
 
 
-
 		if check_filled == 'N':
 			check_errors +=1
 
@@ -138,7 +192,48 @@ def process_file_name(file_name, additional_file_name):
 	write_csv_lines_from_list(not_processed_line_list)
 	#f.close()
 
+def serialize(obj):
+    if isinstance(obj, ObjectId):
+        return str(obj)
+    elif isinstance(obj, datetime.datetime):
+        return obj.isoformat()
+    raise TypeError(f"Type {type(obj)} not serializable")
 
+def find_one_qb_vendor_config(mdb, qb_vendor_code, check_type, check_date):
+    collection_name = "qb_customer_vendor_config"
+    mycol = mdb[collection_name]
+    
+    # convert object to dictionary 
+    response = []
+    
+    response = mycol.find_one({
+        "$and": [
+    
+        { "qb_vendor_code": { "$eq": qb_vendor_code }}, 
+        { "check_type":     { "$eq": check_type }},
+        { "effective_from_date":        { "$lte": check_date }},
+        { "effective_to_date":          { "$gte": check_date }}
+    ]})
+
+    print("VENDOR CONFIG:")
+    print(json.dumps(response, default = serialize, indent = 4))
+    return response
+
+def find_reinsurance_treaty(mdb, reinsurance_treaty_name):
+    collection_name = "reinsurance_companies"
+    mycol = mdb[collection_name]
+    
+    # convert object to dictionary 
+    response = []
+    
+    response = mycol.find_one({
+
+        "$and": [
+    
+        { "reinsurance_company": { "$eq": reinsurance_treaty_name }}
+       
+    ]})
+    return response
 
 def get_group_payee_id(claim_group):
 	for claim in claim_group:
@@ -556,7 +651,7 @@ def create_vendor_mod(list_id, edit_sequence, payeeactive, company_name, addr1, 
 
 
 
-
+'''
 def get_check_dates():
 
 	today = datetime.date.today()
@@ -569,8 +664,24 @@ def get_check_dates():
 	month = int(lastMonth)
 	last_day_month = calendar.monthrange(current_year, month)[1]
 	check_date = f"{current_year}-{lastMonth}-{last_day_month}"
+	check_date_time = today.strftime('%Y-%m-%d') + " 00:00:00"
 	
-	return month_name, check_date
+	return month_name, check_date, check_date_time
+'''
+
+def get_check_dates():
+
+    today = datetime.date.today()
+    first_of_current_month = today.replace(day=1)
+    last_month_date = first_of_current_month - datetime.timedelta(days=1)
+    last_month = last_month_date.month  
+    month_name = last_month_date.strftime("%b")
+    current_year = today.year
+    last_day_of_last_month = calendar.monthrange(current_year, last_month)[1]
+    check_date = f"{current_year}-{last_month:02d}-{last_day_of_last_month}"
+    check_date_time = today.strftime('%Y-%m-%d') + " 00:00:00"
+    
+    return month_name, check_date, check_date_time
 
 def get_uuid():
 
@@ -702,7 +813,10 @@ def convert_xml_to_json(quickbooks_response_xml):
 
 def process_bill_template(today_str, job_uuid, request_msg_que, response_msg_que, payee_id, check_date, claim_group):
 
+	vendor_override, payee_id = check_for_vendor_override(claim_group)
 	completed_template = create_check_template(payee_id, check_date, claim_group)
+	print(completed_template)
+	'''
 	commission_msg = create_sqs_msg(completed_template, today_str, job_uuid, request_msg_que, response_msg_que )
 	send_sqs_msg(commission_msg, request_msg_que)
 	qb_response_dict = receive_sqs_msg(response_msg_que)
@@ -721,6 +835,16 @@ def process_bill_template(today_str, job_uuid, request_msg_que, response_msg_que
 	#exit()
 				
 	return check_filled
+	'''
+	return 'Y'
+
+def check_for_vendor_override(claim_group):
+
+	print(json.dumps(claim_group[0], default=serialize, indent = 4))
+	if 'vendor_override' in claim_group[0]:
+		return True, claim_group[0].get('qb_override_vendor_code')
+	else:
+		return False, claim_group[0].get('Payee Number')
 
 	
 def create_csv_vendor_headings(today_str, file_name):
@@ -951,7 +1075,8 @@ def write_csv_lines_from_list(line_list):
 
 if __name__ == "__main__":
 
-	file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/CLAIMS_2024082215202191"
+	#file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/CLAIMS_2024082215202191"
+	file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/test_claims_extract"
 	additional_file_name = "/home/jessedance/DRK_dev/capital_extracts/Claims_data/Additional_Claims_info_9.20.24.csv"
 	process_file_name(file_name, additional_file_name)
 	f.close()
